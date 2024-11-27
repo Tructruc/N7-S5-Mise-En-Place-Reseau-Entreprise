@@ -48,7 +48,7 @@ services:
       dmz:
         ipv4_address: 192.168.100.2
     volumes:
-      - ./web:/public
+      - ./webserver/web:/public
 
 
 networks:
