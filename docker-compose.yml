@@ -3,6 +3,8 @@ services:
     build:
       context: ./router  # Directory containing the Dockerfile
     container_name: router
+    volumes:
+      - ./router/dhcpd.conf:/etc/dhcp/dhcpd.conf
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -12,10 +14,13 @@ services:
     networks:
       dmz:
         ipv4_address: 192.168.100.250
+        mac_address: 02:42:AC:11:00:01
       private:
         ipv4_address: 192.168.200.250
+        mac_address: 02:42:AC:11:01:01
       public:
         ipv4_address: 10.10.10.3
+        mac_address: 02:42:AC:11:02:01
 
   user:
     build:
@@ -25,7 +30,7 @@ services:
       - NET_ADMIN
     networks:
       private:
-        ipv4_address: 192.168.200.2
+        mac_address: 02:42:AC:11:01:02
 
   dns:
     build:
@@ -35,7 +40,7 @@ services:
       - NET_ADMIN
     networks:
       dmz:
-        ipv4_address: 192.168.100.3
+        mac_address: 02:42:AC:11:00:03
 
 
   webserver:
@@ -46,7 +51,7 @@ services:
       - NET_ADMIN
     networks:
       dmz:
-        ipv4_address: 192.168.100.2
+        mac_address: 02:42:AC:11:00:02
     volumes:
       - ./webserver/web:/public
 
