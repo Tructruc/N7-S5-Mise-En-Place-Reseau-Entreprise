@@ -5,6 +5,8 @@ services:
     container_name: router
     volumes:
       - ./router/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./router/iptables.rules:/etc/iptables.rules
+      - ./router/Caddyfile:/etc/caddy/Caddyfile
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -36,6 +38,8 @@ services:
     build:
       context: ./dns
     container_name: dns
+    volumes:
+      - ./dns/dnsmasq.conf:/etc/dnsmasq.conf
     cap_add:
       - NET_ADMIN
     networks:
@@ -54,6 +58,7 @@ services:
         mac_address: 02:42:AC:11:00:02
     volumes:
       - ./webserver/web:/public
+      - ./webserver/Caddyfile:/etc/caddy/Caddyfile
 
 
 networks:
@@ -69,11 +74,8 @@ networks:
       config:
         - subnet: 192.168.200.0/24
 
-
   public:
-    driver: macvlan
-    driver_opts:
-      parent: eth0
+    driver: bridge
     ipam:
       config:
         - subnet: 10.10.10.0/24

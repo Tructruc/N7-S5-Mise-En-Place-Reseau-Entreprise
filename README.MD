@@ -33,7 +33,10 @@ Cette section est en cours de développement.
 
 ### Conteneur serveur web
 
-Pour le conteneur serveur web, je suis également parti d'une image Ubuntu. J'ai choisi d'utiliser [Static Web Server](https://static-web-server.net/), un serveur web statique open source écrit en Rust. Ce choix s'explique par sa légèreté et ses performances, ainsi que par sa simplicité de configuration par rapport à un serveur web plus complexe comme Apache2, qui serait inutile ici puisqu'il s'agit simplement de partager une page statique.
+Pour le conteneur serveur web, je suis également parti d'une image Ubuntu. J'ai choisi d'utiliser [Caddy](https://caddyserver.com/), un serveur http open source écrit en Go qui peut servir des fichiers statiques. Ce choix s'explique par sa légèreté et ses performances, ainsi que par sa simplicité de configuration par rapport à un serveur web plus complexe comme Apache ou NGINX.
+>It's not uncommon for Caddyfiles to be just ~15-25% the size of a less-capable nginx config. (https://caddyserver.com/)
+
+Un serveur web plus puissant comme Apache aurait été inutile ici, car nous ne devons que servir des fichiers statiques.
 
 J'ai également installé `iproute2` pour configurer la route par défaut passant par le conteneur routeur, et ajouté `ping` et `curl` pour tester la communication entre les conteneurs.
 

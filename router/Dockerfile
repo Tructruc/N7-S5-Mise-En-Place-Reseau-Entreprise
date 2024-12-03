@@ -1,20 +1,34 @@
-# Use a lightweight base image with networking tools
 FROM ubuntu:latest
 
-# Install necessary networking tools
-RUN apt-get update && apt-get install -y iproute2 iptables iputils-ping isc-dhcp-server && apt-get clean
+# Install all needed packages
+RUN apt-get update && apt-get install -y \
+        iproute2 \
+        iptables \
+        iputils-ping \
+        traceroute \
+        isc-dhcp-server \
+        curl \
+        gnupg \
+        && apt-get clean
 
-# Copy the persistent iptables rules file into the container
-#COPY iptables.rules /etc/iptables.rules
+# Install caddy for reverse proxy
+RUN curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | apt-key add - && \
+    curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/deb.deb.txt | tee /etc/apt/sources.list.d/caddy-stable.list && \
+    apt-get update && apt-get install -y caddy && \
+    apt-get clean
 
+# Create the dhcpd lease file
 RUN  touch /var/lib/dhcp/dhcpd.leases
 
-#RUN iptables -t nat -A POSTROUTING -s 192.168.100.0/24 -d 192.168.200.0/24 -j MASQUERADE
-#RUN iptables -t nat -A POSTROUTING -s 192.168.200.0/24 -d 192.168.100.0/24 -j MASQUERADE
-
-#iptables-restore < /etc/iptables.rules
-# Ensure the rules are loaded at startup
+# The command that is executed when the container start
+# Delete the docker default route that was pointing on the dmz network
+# Add the new default route pointing on the router of the public network so the host to be able to accest the web
+# Load iptables config file
+# Start dhcpd
+# Start caddy
 CMD sh -c "\
-    iptables -t nat -A POSTROUTING -s 192.168.100.0/24 -d 192.168.200.0/24 -j MASQUERADE && \
-    iptables -t nat -A POSTROUTING -s 192.168.200.0/24 -d 192.168.100.0/24 -j MASQUERADE && \
-    dhcpd -f -cf /etc/dhcp/dhcpd.conf -4"
+    ip route del default && \
+    ip route add default via 10.10.10.1 dev eth2 && \
+    iptables-restore < /etc/iptables.rules &&\
+    dhcpd -f -cf /etc/dhcp/dhcpd.conf -4 &\
+    caddy run --config /etc/caddy/Caddyfile"
