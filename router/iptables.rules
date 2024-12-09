@@ -1,12 +1,9 @@
 *nat
 # Clear the config
 :PREROUTING ACCEPT [0:0]
-:INPUT ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 
 # Forward HTTP/HTTPS to 192.168.100.4 (from eth2)
-#-A PREROUTING -i eth2 -p tcp -m multiport --dports 80,443 -j DNAT --to-destination 192.168.100.4
 -A PREROUTING -d 10.10.10.3 -p tcp -m multiport --dports 80,443 -j DNAT --to-destination 192.168.100.4
 
 # Forward DNS to 192.168.100.3 (both TCP and UDP from eth2)
@@ -16,8 +13,6 @@
 # Masquerade responses for NATed traffic
 -A POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
 -A POSTROUTING -s 192.168.200.0/24 -o eth0 -j MASQUERADE
-
-# Masquerade traffic to 10.10.10.0/24 on eth2
 -A POSTROUTING -s 192.168.100.0/24 -o eth2 -j MASQUERADE
 -A POSTROUTING -s 192.168.200.0/24 -o eth2 -j MASQUERADE
 
@@ -25,15 +20,19 @@ COMMIT
 
 *filter
 # Clear the config
-#:INPUT DROP [0:0]
+:INPUT DROP [0:0]
 :FORWARD DROP [0:0]
-#:OUTPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
 
 # Allow traffic to forwarded ports (only from eth2)
 -A FORWARD -i eth2 -p tcp -m multiport --dports 80,443 -d 192.168.100.4 -j ACCEPT
 -A FORWARD -s 192.168.100.4 -p tcp -m multiport --sports 80,443 -j ACCEPT
 -A FORWARD -i eth2 -p udp --dport 53 -d 192.168.100.3 -j ACCEPT
 -A FORWARD -i eth2 -p tcp --dport 53 -d 192.168.100.3 -j ACCEPT
+
+# Allow outbound traffic from internal networks
+-A FORWARD -s 192.168.100.0/24 -o eth0 -j ACCEPT
+-A FORWARD -s 192.168.200.0/24 -o eth0 -j ACCEPT
 
 # Allow communication between internal subnets
 -A FORWARD -s 192.168.100.0/24 -d 192.168.200.0/24 -j ACCEPT
