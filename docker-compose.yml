@@ -6,7 +6,6 @@ services:
     volumes:
       - ./router/dhcpd.conf:/etc/dhcp/dhcpd.conf
       - ./router/iptables.rules:/etc/iptables.rules
-      - ./router/Caddyfile:/etc/caddy/Caddyfile
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -22,7 +21,18 @@ services:
         mac_address: 02:42:AC:11:01:01
       public:
         ipv4_address: 10.10.10.3
-        mac_address: 02:42:AC:11:02:01
+
+  proxy:
+    build:
+      context: ./reverseproxy
+    container_name: proxy
+    cap_add:
+      - NET_ADMIN
+    networks:
+      dmz:
+        mac_address: 02:42:AC:11:00:04
+    volumes:
+      - ./reverseproxy/Caddyfile:/etc/caddy/Caddyfile
 
   user:
     build:
@@ -75,7 +85,10 @@ networks:
         - subnet: 192.168.200.0/24
 
   public:
-    driver: bridge
+    driver: macvlan
+    #driver: bridge
+    driver_opts:
+      parent: enp1s0
     ipam:
       config:
         - subnet: 10.10.10.0/24

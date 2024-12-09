@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
         iputils-ping \
         curl \
         isc-dhcp-client \
+        traceroute \
+        dnsutils\
         && apt-get clean
 
 # The command that is executed when the container start
