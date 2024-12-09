@@ -1,0 +1,4 @@
+http://web.emilien/, http://192.168.100.5/ {
+    root * /public
+    file_server
+}

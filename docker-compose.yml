@@ -72,6 +72,18 @@ services:
       - ./webserver/web:/public
       - ./webserver/Caddyfile:/etc/caddy/Caddyfile
 
+  webserver2:
+    build:
+      context: ./webserver2
+    container_name: webserver2
+    cap_add:
+      - NET_ADMIN
+    networks:
+      dmz:
+        mac_address: 02:42:AC:11:00:05
+    volumes:
+      - ./webserver2/web:/public
+      - ./webserver2/Caddyfile:/etc/caddy/Caddyfile
 
 networks:
   dmz:
