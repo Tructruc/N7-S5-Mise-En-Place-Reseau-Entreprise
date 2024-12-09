@@ -21,6 +21,8 @@ services:
         mac_address: 02:42:AC:11:01:01
       public:
         ipv4_address: 10.10.10.3
+      zinternet:
+        ipv4_address: 192.168.50.250
 
   proxy:
     build:
@@ -92,3 +94,9 @@ networks:
     ipam:
       config:
         - subnet: 10.10.10.0/24
+
+  zinternet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.50.0/24

@@ -20,6 +20,6 @@ RUN  touch /var/lib/dhcp/dhcpd.leases
 # Start dhcpd
 CMD sh -c "\
     ip route del default && \
-    ip route add default via 192.168.100.1 dev eth0 && \
+    ip route add default via 192.168.50.1 dev eth3 && \
     iptables-restore < /etc/iptables.rules &&\
     dhcpd -f -cf /etc/dhcp/dhcpd.conf -4"
