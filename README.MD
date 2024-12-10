@@ -15,11 +15,15 @@ Extrait du sujet :
 
 J'ai choisi de réaliser ce projet avec [Docker](https://www.docker.com/) comme solution de virtualisation en raison de ses performances et parce que j'étais déjà familier avec cet outil.
 
+### Configurations communes aux différents conteneurs
+
+Je suis partit d'une image de base Ubuntu pour tout les conteneurs. J'y ai installé `iproute2` pour pouvoir parametrer la passerelle par default des conteneurs. J'ai installé `isc-dhcp-client` sur tout les conteneurs sauf le routeur pour permettre au conteneur d'obtenir son paramétrage réseau avec le DHCP.
+
+Sur chaque conteneur, au démmarrage, je supprime la passerelle par default qui est crée par default car elle pointe vers le routeur interne de docker. Ensuite j'ajoute une nouvelle route par default vers mon routeur. Sur les conteneurs qui utilisent le DHCP, je supprime l'adresse qui est ajouté par Docker et je lance le client DHCP.
+
 ### Conteneur utilisateur
 
-Pour le conteneur utilisateur, je suis parti d'une image de base Ubuntu. J'y ai installé [w3m](https://github.com/acg/w3m), un navigateur open source conçu pour le terminal. Étant donné que j'utilise Docker, je ne peux pas utiliser d'applications graphiques comme Google Chrome ou Firefox. 
-
-J'ai également installé `iproute2` pour configurer la route par défaut, qui passe par le conteneur routeur, car Docker ne permet pas de définir une passerelle pointant vers l'adresse d'un autre conteneur automatiquement. Enfin, pour vérifier que les conteneurs communiquent correctement entre eux, j'ai installé `ping` et `curl`. 
+J'ai installé [w3m](https://github.com/acg/w3m), un navigateur open source conçu pour le terminal. Étant donné que j'utilise Docker, je ne peux pas utiliser d'applications graphiques comme Google Chrome ou Firefox. 
 
 Pour empêcher le conteneur de s'arrêter immédiatement après son lancement, sa commande d'exécution consiste en une boucle infinie de `sleep`.
 
@@ -27,26 +31,42 @@ Pour empêcher le conteneur de s'arrêter immédiatement après son lancement, s
 
 ### Conteneur DNS
 
-Cette section est en cours de développement.
+J'ai utilisé [dnsmasq](https://dnsmasq.org/doc.html), un serveur dns open source simple à configurer et performant.
+
+#### Parametrage du serveur DNS
+
+Serveurs de DNS des deux autres réseaux :
+- 10.10.10.1
+- 10.10.10.2
+
+Serveurs de DNS externes :
+- 8.8.8.8
+- 1.1.1.1
+
+J'ai ajouté l'adresse de mon serveur web : `web.emilien` qui pointe vers l'adresse publique de mon réseau `10.10.10.3`. J'ai aussi ajouté une entrée qui dit que le serveur web n'a pas d'adresse IPV6.
 
 - **Adresse IP** : 192.168.100.3
 
-### Conteneur serveur web
+### Conteneurs serveur web
 
-Pour le conteneur serveur web, je suis également parti d'une image Ubuntu. J'ai choisi d'utiliser [Caddy](https://caddyserver.com/), un serveur http open source écrit en Go qui peut servir des fichiers statiques. Ce choix s'explique par sa légèreté et ses performances, ainsi que par sa simplicité de configuration par rapport à un serveur web plus complexe comme Apache ou NGINX.
+J'ai crée conteneurs serveurs webs avec la meme configuration pour pouvoir faire du load balancing (voir [Conteneur reverse proxy](#conteneur-reverse-proxy)) Pour les différencier, j'ai écris le numero du serveur sur sa page.
+
+J'ai choisi d'utiliser [Caddy](https://caddyserver.com/), un serveur http open source écrit en Go qui peut servir des fichiers statiques. Ce choix s'explique par sa légèreté et ses performances, ainsi que par sa simplicité de configuration par rapport à un serveur web plus complexe comme Apache ou NGINX.
 >It's not uncommon for Caddyfiles to be just ~15-25% the size of a less-capable nginx config. (https://caddyserver.com/)
 
 Un serveur web plus puissant comme Apache aurait été inutile ici, car nous ne devons que servir des fichiers statiques.
 
-J'ai également installé `iproute2` pour configurer la route par défaut passant par le conteneur routeur, et ajouté `ping` et `curl` pour tester la communication entre les conteneurs.
-
-- **Adresse IP** : 192.168.100.2
+- **Adresse IP serveur web 1** : 192.168.100.2
+- **Adresse IP serveur web 2** : 192.168.100.5
 
 ### Conteneur routeur
 
-Pour le conteneur routeur, je suis parti d'une image Ubuntu. J'ai installé `iptables` pour configurer le routage. J'ai également ajouté `ping` pour tester les connexions réseau.
-
 - **Adresses IP** :
-  - 192.168.100.250
-  - 192.168.200.250
-  - 10.10.10.3
+  - 192.168.100.250 (Réseau privé)
+  - 192.168.200.250 (Réseau DMZ)
+  - 10.10.10.3 (Réseau public)
+  - 192.168.50.250 (Réseau pour la connexion a Internet)
+
+### Conteneur reverse proxy
+
+J'ai choisi d'utiliser [Caddy](https://caddyserver.com/) en tant que reverse proxy pour les memes raisons que pour le [conteneur serveur web](#conteneurs-serveur-web). J'ai donc fait pointer l'adresse de mon site (`web.emilien`) vers mes deux serveurs web avec du load balancing (répartition de charge), j'ai utilisé la stratégie `round-robin` de Caddy. Elle alterne entre les serveurs webs de manière séquentielle, par exemple la première requette ira au serveur 1 puis la deuxième au serveur 2 et la troisième ira au serveur 1. Cette stratégie permet ici de montrer facilement que le load ballancing fonctionne correctement
