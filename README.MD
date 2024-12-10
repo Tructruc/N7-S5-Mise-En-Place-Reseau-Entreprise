@@ -9,7 +9,7 @@ Extrait du sujet :
 
 ## Choix techniques
 
-![Carte du Réseau d'entreprise](carteReseau.drawio.svg)
+![Carte du Réseau d'entreprise](carteReseau.png)
 
 ### Solution de virtualisation
 
