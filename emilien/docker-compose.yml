@@ -99,10 +99,10 @@ networks:
         - subnet: 192.168.200.0/24
 
   public:
-    driver: bridge
-    #driver: macvlan
-    #driver_opts:
-    #  parent: enp1s0
+    #driver: bridge
+    driver: macvlan
+    driver_opts:
+      parent: enp1s0
     ipam:
       config:
         - subnet: 10.10.10.0/24
