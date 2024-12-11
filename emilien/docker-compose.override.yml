@@ -1,7 +1,6 @@
-# requires docker compose plugin (=v2)
-#
-# wget -q --no-cache -O - https://github.com/siemens/edgeshark/raw/main/deployments/wget/docker-compose.yaml | docker compose -f - up
-name: 'edgeshark'
+#Docker compose from edgeshark
+#https://github.com/siemens/edgeshark
+name: 'projet'
 services:
     gostwire:
         image: 'ghcr.io/siemens/ghostwire'

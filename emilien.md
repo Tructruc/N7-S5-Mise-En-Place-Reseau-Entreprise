@@ -61,3 +61,7 @@ Un serveur web plus puissant comme Apache aurait été inutile ici, car nous ne 
 ### Conteneur reverse proxy
 
 J'ai choisi d'utiliser [Caddy](https://caddyserver.com/) en tant que reverse proxy pour les memes raisons que pour le [conteneur serveur web](#conteneurs-serveur-web). J'ai donc fait pointer l'adresse de mon site (`web.emilien`) vers mes deux serveurs web avec du load balancing (répartition de charge), j'ai utilisé la stratégie `round-robin` de Caddy. Elle alterne entre les serveurs webs de manière séquentielle, par exemple la première requette ira au serveur 1 puis la deuxième au serveur 2 et la troisième ira au serveur 1. Cette stratégie permet ici de montrer facilement que le load ballancing fonctionne correctement
+
+### Edgeshark
+
+J'ai ajouté le docker compose de [Edgeshark](https://edgeshark.siemens.io/) qui est un conteneur open source crée par Siemens qui permet avec le wireshark de d'hote de capturer les packets des réseaux dockers. J'ai utilisé se docker compose comme un override qui me permet de garder le garder séparré de mon docker compose principal. Edge shark permet de créer une interface virtuelle pour chaque connextion a un réseau docker et pour chaque réseau docker. Il rend accessible sur le port 5001 du host un site web qui permet de visualiser a quel réseau correspond chaque interface et également de visualsier le réseau docker.
