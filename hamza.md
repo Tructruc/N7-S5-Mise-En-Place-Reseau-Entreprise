@@ -1,26 +1,81 @@
-# archtecture reseau de l'entreprise
-![Alt text](hamza/archi_reseau.jpg)
+# Architecture réseau de l'entreprise
+![Archi_reseau](hamza/archi_reseau.jpg)
 
-# choix de virtualisation
-pour la solution de virtualsiation j'i choisi virtual box car il est facile a utiliser en plus c'est pas le premiere fois je je l'utilise et pour les CMs j'i choiis des vm kali dbian car c'est leger en plus y a wireshark qui est deja installé et des autres outils necessaire pour faire ce projet
-# configuration global
-on a defini 2 zone pricipale dans notre reseau privé : le reseau local qui est 192.168.0.0/24 et le reseau de dmz qui est 192.168.1.0/24 et pour l'exterieur c'est l'addresse 10.10.10.0/24 .
-appres le dfinitions des reseaux on a affectuer a chaque equipemet leurs addresse ip et leurs default gateway si besoin et en a verifier la conne ction avec les diffirent equipeemnts
-# config DHCP
-pour faciliter l'attribustion d'adreese ip on a opter a faire une solution de DHCP on a fait une pool de 10 addresse de chque reseau privé en plus on a fixer les addresse ip de nos serveurs a 192.168.1.1 pour le web 192.168.1.2 pour qu'il soit touours accessibles et le clien sais cette addresse .en plus de ca on a defini le serveur dns aussi pour que les client dhcp save a quelle serveru aller pour faire la translation
-possibilité bech nzidou tsawer lenna 999999999999999999999999999999
-# config serveur
-## serveur web
-j'ai choisi le serveur apache2 et j'ai fait ue petite page d'acceullle pour que les clients save que c'est mon serveur 
-9999999999999 zid taswira lenna 999999999999999999999
-## serveur DNS
-tout d'abord j'ai essayer avec bind9 mais c'eaait fdefficile a confogurer et j'ai rencontrer beaucoups des problemes doonc j'ai opter a une solutions plus simple qui est dsnmasq .
-et pour notre solutio de hierarchie on jste fait des forwarders si notre sotre serveur ne trouve pas la correspandance entre l addresse ip et le nom de domaine il 'envoie a uen autre reseau.
-# acces au serveur de lexerieur
-tout d'abord il faut assurer que toute les equipemet puissent communiquer a l'exterieur et pour faire ca il faut taper la commande : iptabel e....... pour assurer la traslation de addresse privé a des addresse publiques
-apres il faut asssurer que nos serveur puisse etre acceder depuis l'exterireur dont on a fait un dnat et on a faot uen redirection selon le port si le traffic etst de l'exteriru et la port de distination 80 on le derige vers notre serveur web et meme chodse pour le serveuur dns avec le port 53
-mais c'est pas pratiqe ca donc on a opter a une autre solution plus pratiqe et plus securisé qui est le reverse prxy 
-# politique de firewall
+# Choix de la virtualisation
+Pour la solution de virtualisation, j'ai choisi **VirtualBox** car il est facile à utiliser. De plus, ce n'est pas la première fois que je l'utilise. Concernant les machines virtuelles (VM), j'ai opté pour des **VM Kali Linux et Debian**, car elles sont légères et incluent déjà des outils nécessaires comme **Wireshark** pour ce projet.
+
+# Configuration globale
+Nous avons défini deux zones principales dans notre réseau privé :
+- **Réseau local** : 192.168.0.0/24
+- **Réseau DMZ** : 192.168.1.0/24
+- **Réseau extérieur** : 10.10.10.0/24
+
+Après avoir défini ces réseaux, nous avons affecté une adresse IP et une passerelle par défaut à chaque équipement, puis vérifié la connectivité entre les différents équipements.
+
+# Configuration DHCP
+Pour faciliter l'attribution des adresses IP, nous avons opté pour une solution **DHCP**. Nous avons créé une plage de **10 adresses** pour chaque réseau privé. De plus, nous avons fixé les adresses IP de nos serveurs pour garantir leur accessibilité :
+- **Serveur Web** : 192.168.1.1
+- **Autre serveur** : 192.168.1.2
+
+Nous avons également défini le **serveur DNS** afin que les clients DHCP sachent à quel serveur s'adresser pour la résolution de noms.
+
+# Configuration des serveurs
+
+## Serveur Web
+J'ai choisi le serveur **Apache2** pour héberger le site web. Une petite page d'accueil a été créée pour informer les clients que c'est bien mon serveur.
+
+![page_web](hamza/page_web.png)
+
+## Serveur DNS
+Tout d'abord, j'ai essayé avec **BIND9**, mais il était difficile à configurer et j'ai rencontré plusieurs problèmes. J'ai donc opté pour une solution plus simple : **dnsmasq**.
+
+Pour la hiérarchie DNS, nous avons configuré des **forwarders**. Si notre serveur ne trouve pas la correspondance entre une adresse IP et un nom de domaine, il envoie la requête vers un autre serveur. J'ai choisi le nom de domaine **web.hamza.n7**.
+
+Voici la configuration de **dnsmasq** :
+
+```bash
+# Spécifie que le serveur DNS doit écouter sur l'interface réseau eth0
+interface = eth0
+
+# Cette option indique que seules les requêtes DNS contenant un nom de domaine doivent être envoyées à des serveurs DNS en amont
+domain-needed
+
+# Cette option empêche le serveur DNS d'accepter des réponses avec des adresses IP privées (par exemple, 10.x.x.x, 192.168.x.x) dans les requêtes DNS.
+bogus-priv
+
+# Cette option empêche la lecture du fichier /etc/resolv.conf pour les serveurs DNS en amont. Les serveurs DNS sont spécifiés manuellement ici.
+no-resolv
+
+# Définit les serveurs DNS en amont à utiliser lorsque le serveur local ne peut pas répondre à la requête.
+server = 10.10.10.3
+server = 10.10.10.2
+
+# Cette ligne indique que la requête pour le domaine "web.hamza.n7" doit renvoyer l'adresse IP 10.10.10.1 (en IPv4).
+address = /web.hamza.n7/10.10.10.1
+
+# Cette ligne indique que la requête pour le domaine "web.hamza.n7" doit renvoyer une adresse IPv6 non spécifiée (::).
+address = /web.hamza.n7/::
+```
+
+# Accès au serveur depuis l'extérieur
+Tout d'abord, il est nécessaire de s'assurer que tous les équipements peuvent communiquer avec l'extérieur. Pour cela, il faut configurer la **traduction d'adresse (NAT)** en utilisant la commande `iptables`. Cela permettra de traduire les adresses privées en adresses publiques.
+
+Ensuite, pour que nos serveurs soient accessibles depuis l'extérieur, nous avons configuré un **DNAT** (Destination NAT) et effectué des redirections de ports :
+- **Port 80** : redirigé vers notre serveur web
+- **Port 53** : redirigé vers notre serveur DNS
+
+Cependant, cette approche présente des limitations pratiques, notamment en termes de sécurité et de gestion. Pour cela, nous avons opté pour une solution plus sécurisée et plus flexible : le **reverse proxy**. Cette solution est :
+- **Plus sécurisée** : elle permet de mieux contrôler le trafic entrant et sortant.
+- **Extensible** : facile à ajouter ou supprimer des serveurs sans interrompre le service.
+  
+En résumé, le reverse proxy offre une meilleure gestion du trafic et une plus grande sécurité pour nos serveurs.
+
+# Politique de firewall
+Concernant les **politiques de firewall**, nous avons mis en place les règles suivantes :
+- Acceptation du trafic entrant sur le port **80** pour le serveur web.
+- Acceptation du trafic entrant sur le port **53** pour le serveur DNS.
+
+Ces règles assurent que seul le trafic légitime passe par ces ports, garantissant ainsi la sécurité de notre infrastructure.
 
 
 
