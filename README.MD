@@ -9,6 +9,11 @@ Extrait du sujet :
 
 ## Partie commune
 
+### Carte du réseau d'interconnexion
+
+![Carte du réseau d'interconnexio](interco.png)
+
+
 ## Documents individuels
 
 - [Ismail](ismail.md)
