@@ -30,10 +30,10 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
 
 #### **2. VM Serveur DNS**
 - **But :** Fournit la résolution DNS pour les domaines de l'entreprise.
-- **Logiciel :** `BIND9` installé et configuré.
+- **Logiciel :** `dnsmasq`
 - **Points Forts de la Configuration :**
-    - Domaine personnalisé : `alrismail.local`.
-    - Enregistrement A : `www.alrismail.local -> 192.168.2.4` (Reverse Proxy)
+    - Domaine personnalisé : `alrismail.om`.
+    - Enregistrement A : `www.alrismail.om -> 192.168.2.4` (Reverse Proxy)
 - **Adresse IP :** `192.168.2.2`
 
 ---
@@ -55,7 +55,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
 - **But :** Servir des fichiers statiques pour le site web.
 - **Logiciel :** Apache2
 - **Points Forts de la Configuration :**
-    - Pages statiques pour `www.alrismail.local`.
+    - Pages statiques pour `www.alrismail.om`.
     - Pages différenciées pour identifier chaque serveur.
     - Équilibré par le proxy inverse.
 - **Adresses IP :**
@@ -77,7 +77,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
                 }
         }
         ```
-    - Gère les requêtes pour `www.alrismail.local` et les transfère aux serveurs web en mode round-robin.
+    - Gère les requêtes pour `www.alrismail.om` et les transfère aux serveurs web en mode round-robin.
 - **Adresse IP :** `192.168.2.4`
 
 ---
