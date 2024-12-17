@@ -1,0 +1,78 @@
+{
+  "Dhcp4": {
+    "interfaces-config": {
+      "interfaces": [ "eth0", "eth1" ]
+    },
+    "lease-database": {
+      "type": "memfile",
+      "lfc-interval": 3600
+    },
+    "valid-lifetime": 7200,
+    "renew-timer": 3600,
+    "rebind-timer": 5400,
+
+    "subnet4": [
+      {
+        "id":1,
+        "subnet": "192.168.100.0/24",
+        "pools": [
+          {
+            "pool": "192.168.100.2 - 192.168.100.200"
+          }
+        ],
+        "option-data": [
+          {
+            "name": "domain-name-servers",
+            "data": "192.168.100.3,8.8.8.8,1.1.1.1"
+          },
+          {
+            "name": "routers",
+            "data": "192.168.100.250"
+          }
+        ],
+        "reservations": [
+          {
+            "hw-address": "02:42:AC:11:00:02",
+            "ip-address": "192.168.100.2",
+            "hostname": "web-server"
+          },
+          {
+            "hw-address": "02:42:AC:11:00:03",
+            "ip-address": "192.168.100.3",
+            "hostname": "dns-server"
+          },
+          {
+            "hw-address": "02:42:AC:11:00:04",
+            "ip-address": "192.168.100.4",
+            "hostname": "reverse-proxy"
+          },
+          {
+            "hw-address": "02:42:AC:11:00:05",
+            "ip-address": "192.168.100.5",
+            "hostname": "web-server2"
+          }
+        ]
+      },
+      {
+        "id":2,
+        "subnet": "192.168.200.0/24",
+        "pools": [
+          {
+            "pool": "192.168.200.2 - 192.168.200.200"
+          }
+        ],
+        "option-data": [
+          {
+            "name": "domain-name-servers",
+            "data": "192.168.100.3,8.8.8.8,1.1.1.1"
+          },
+          {
+            "name": "routers",
+            "data": "192.168.200.250"
+          }
+        ],
+        "interface": "eth1"
+      }
+    ]
+  }
+}

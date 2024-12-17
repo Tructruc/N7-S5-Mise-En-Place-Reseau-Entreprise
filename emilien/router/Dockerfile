@@ -1,17 +1,14 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
 # Install all needed packages
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add \
         iproute2 \
         iptables \
-        iputils-ping \
-        traceroute \
-        isc-dhcp-server \
-        curl \
-        && apt-get clean
+        kea-dhcp4 \
+        && apk cache clean
 
 # Create the dhcpd lease file
-RUN  touch /var/lib/dhcp/dhcpd.leases
+RUN  mkdir /run/kea
 
 # The command that is executed when the container start
 # Delete the docker default route that was pointing on the dmz network
@@ -22,4 +19,4 @@ CMD sh -c "\
     ip route del default && \
     ip route add default via 192.168.50.1 dev eth3 && \
     iptables-restore < /etc/iptables.rules &&\
-    dhcpd -f -cf /etc/dhcp/dhcpd.conf -4"
+    kea-dhcp4 -c /etc/kea.json"

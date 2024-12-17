@@ -1,20 +1,10 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
 # Install all needed packages
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add \
         iproute2 \
-        iputils-ping \
-        curl \
-        wget \
-        isc-dhcp-client \
-        gnupg \
-        && apt-get clean
-
-# Install caddy for the reverse proxy
-RUN curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | apt-key add - && \
-    curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/deb.deb.txt | tee /etc/apt/sources.list.d/caddy-stable.list && \
-    apt-get update && apt-get install -y caddy && \
-    apt-get clean
+        caddy \
+        && apk cache clean
 
 # The command that is executed when the container start
 # Delete the docker default route
@@ -25,5 +15,5 @@ RUN curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | apt-key ad
 CMD sh -c "ip route del default && \
             ip route add default via 192.168.100.250 dev eth0 && \
             ip addr flush dev eth0 &&\
-            dhclient eth0 && \
+            udhcpc eth0 -s /udhcpc.script && \
             caddy run --config /etc/caddy/Caddyfile"
