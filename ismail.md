@@ -13,7 +13,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
 - **Image de Base :** Toutes les VMs sont construites sur une distribution Linux légère, Debian.
 - **Réseau :** Chaque VM est configurée avec des adresses IP statiques lorsque c'est applicable. Les adresses IP dynamiques sont gérées par le serveur DHCP pour certaines VMs.
 - **Passerelle par Défaut :** Pour chaque VM, la passerelle par défaut pointe vers la **VM Routeur** pour router le trafic entre le réseau privé interne, la DMZ et l'internet public.
-- **Configuration DNS :** Toutes les VMs utilisent le serveur DNS interne (192.168.2.2) pour résoudre les noms de domaine de l'entreprise, tels que `www.alrismail.local`.
+- **Configuration DNS :** Toutes les VMs utilisent le serveur DNS interne (192.168.2.2) pour résoudre les noms de domaine de l'entreprise, tels que `www.alrismail.om`.
 
 ---
 
@@ -21,7 +21,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
 
 #### **1. VM Client**
 - **But :** Agit comme la machine cliente pour accéder aux services.
-- **Adresse IP :** `192.168.1.2`
+- **Adresse IP :** `192.168.1.10`
 - **Notes :** 
     - Configurée pour utiliser DHCP pour l'attribution dynamique d'IP si nécessaire.
     - Utilise le serveur DNS à `192.168.2.2`.
@@ -34,7 +34,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
 - **Points Forts de la Configuration :**
     - Domaine personnalisé : `alrismail.om`.
     - Enregistrement A : `www.alrismail.om -> 192.168.2.4` (Reverse Proxy)
-- **Adresse IP :** `192.168.2.2`
+- **Adresse IP :** `192.168.2.2` ( Configuré par netwok-manager )
 
 ---
 
@@ -44,6 +44,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
     - `192.168.1.1` (Réseau Privé)
     - `192.168.2.1` (DMZ)
     - `10.0.0.2` (Réseau Externe)
+    - `10.0.2.15` (Interface NAT)
 - **Points Forts de la Configuration :**
     - NAT configuré pour l'accès à internet externe.
     - Routes statiques configurées pour interconnecter les réseaux privé et DMZ.
@@ -59,7 +60,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
     - Pages différenciées pour identifier chaque serveur.
     - Équilibré par le proxy inverse.
 - **Adresses IP :**
-    - Serveur Web : `192.168.2.3`
+    - Serveur Web : `192.168.2.3` ( Configuré par nmcli )
 
 ---
 
@@ -71,14 +72,14 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
         ```nginx
         server {
                 listen 80;
-                server_name www.alrismail.local;
+                server_name www.alrismail.om;
                 location / {
                         proxy_pass http://192.168.2.3; # Transférer aux serveurs web
                 }
         }
         ```
     - Gère les requêtes pour `www.alrismail.om` et les transfère aux serveurs web en mode round-robin.
-- **Adresse IP :** `192.168.2.4`
+- **Adresse IP :** `192.168.2.4` ( Configuré par nmcli )
 
 ---
 

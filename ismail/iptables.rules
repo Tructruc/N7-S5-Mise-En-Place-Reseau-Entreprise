@@ -1,0 +1,55 @@
+*nat
+# Clear the config for PREROUTING and POSTROUTING chains
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+
+# Forward incoming HTTP/HTTPS traffic destined for 10.10.10.2 to 192.168.2.4
+-A PREROUTING -d 10.10.10.2 -p tcp -m multiport --dports 80,443 -j DNAT --to-destination 192.168.2.4
+
+# Forward incoming DNS queries (UDP and TCP) on interface enp0s9 to 192.168.2.2
+-A PREROUTING -i enp0s9 -p udp --dport 53 -j DNAT --to-destination 192.168.2.2
+-A PREROUTING -i enp0s9 -p tcp --dport 53 -j DNAT --to-destination 192.168.2.2
+
+# Masquerade (hide) the source IP of outgoing packets on interfaces enp0s9 and enp0s17
+-A POSTROUTING -o enp0s9 -j MASQUERADE
+-A POSTROUTING -o enp0s17 -j MASQUERADE
+
+COMMIT
+
+*filter
+# Clear the config for INPUT, FORWARD, and OUTPUT chains
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# Allow forwarded traffic for HTTP/HTTPS destined for 192.168.2.4
+-A FORWARD -i enp0s9 -p tcp -m multiport --dports 80,443 -d 192.168.2.4 -j ACCEPT
+# Allow responses from 192.168.2.4 for HTTP/HTTPS
+-A FORWARD -s 192.168.2.4 -p tcp -m multiport --sports 80,443 -j ACCEPT
+
+# Allow forwarded DNS queries (UDP and TCP) destined for 192.168.2.2
+-A FORWARD -i enp0s9 -p udp --dport 53 -d 192.168.2.2 -j ACCEPT
+-A FORWARD -i enp0s9 -p tcp --dport 53 -d 192.168.2.2 -j ACCEPT
+
+# Allow outbound traffic from internal network 192.168.1.0/24 to external network via enp0s17
+-A FORWARD -s 192.168.1.0/24 -o enp0s17 -j ACCEPT
+# Allow outbound traffic from internal network 192.168.2.0/24 to external network via enp0s17
+-A FORWARD -s 192.168.2.0/24 -o enp0s17 -j ACCEPT
+
+# Allow communication between internal subnets 192.168.1.0/24 and 192.168.2.0/24
+-A FORWARD -s 192.168.1.0/24 -d 192.168.2.0/24 -j ACCEPT
+-A FORWARD -s 192.168.2.0/24 -d 192.168.1.0/24 -j ACCEPT
+
+# Allow traffic between internal networks and 10.10.10.0/24 via enp0s9
+-A FORWARD -s 192.168.1.0/24 -d 10.10.10.0/24 -o enp0s9 -j ACCEPT
+-A FORWARD -s 192.168.2.0/24 -d 10.10.10.0/24 -o enp0s9 -j ACCEPT
+
+# Allow established and related traffic to pass through
+-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Allow all loopback (localhost) traffic
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+
+COMMIT
