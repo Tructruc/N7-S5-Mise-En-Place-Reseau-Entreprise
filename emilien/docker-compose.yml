@@ -4,7 +4,7 @@ services:
       context: ./router  # Directory containing the Dockerfile
     container_name: router
     volumes:
-      - ./router/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./router/kea.json:/etc/kea.json
       - ./router/iptables.rules:/etc/iptables.rules
     cap_add:
       - NET_ADMIN
@@ -39,16 +39,20 @@ services:
         mac_address: 02:42:AC:11:00:04
     volumes:
       - ./reverseproxy/Caddyfile:/etc/caddy/Caddyfile
+      - ./udhcpc.script:/udhcpc.script
 
   user:
     build:
       context: ./user
     container_name: user
+    stop_grace_period: 1s
     cap_add:
       - NET_ADMIN
     networks:
       private:
         mac_address: 02:42:AC:11:01:02
+    volumes:
+      - ./udhcpc.script:/udhcpc.script
 
   dns:
     build:
@@ -56,6 +60,7 @@ services:
     container_name: dns
     volumes:
       - ./dns/dnsmasq.conf:/etc/dnsmasq.conf
+      - ./udhcpc.script:/udhcpc.script
     cap_add:
       - NET_ADMIN
     networks:
@@ -75,10 +80,11 @@ services:
     volumes:
       - ./webserver/web:/public
       - ./webserver/Caddyfile:/etc/caddy/Caddyfile
+      - ./udhcpc.script:/udhcpc.script
 
   webserver2:
     build:
-      context: ./webserver2
+      context: ./webserver
     container_name: webserver2
     cap_add:
       - NET_ADMIN
@@ -86,8 +92,9 @@ services:
       dmz:
         mac_address: 02:42:AC:11:00:05
     volumes:
-      - ./webserver2/web:/public
-      - ./webserver2/Caddyfile:/etc/caddy/Caddyfile
+      - ./webserver/web2:/public
+      - ./webserver/Caddyfile2:/etc/caddy/Caddyfile
+      - ./udhcpc.script:/udhcpc.script
 
 networks:
   dmz:

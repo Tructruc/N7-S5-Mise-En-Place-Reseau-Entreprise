@@ -1,25 +1,20 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
 # Install all needed packages
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
         iproute2 \
         w3m \
-        w3m-img \
-        iputils-ping \
-        curl \
-        isc-dhcp-client \
-        traceroute \
-        dnsutils\
-        && apt-get clean
+        w3m-image \
+        bash 
 
-# The command that is executed when the container start
-# Delete the docker default route
-# Add the new default route pointing on the router
+# The command that is executed when the container starts
+# Delete the Docker default route
+# Add the new default route pointing to the router
 # Delete the address on eth0
-# Get a new address on eth0 via dhcp
+# Get a new address on eth0 via DHCP
 # Make the container stay up
 CMD sh -c "ip route del default && \
             ip route add default via 192.168.200.250 dev eth0 && \
-            ip addr flush dev eth0 &&\
-            dhclient -v eth0 && \
-            while true; do sleep 3600; done"
+            ip addr flush dev eth0 && \
+            udhcpc eth0 -s /udhcpc.script && \
+            tail -f /dev/null"

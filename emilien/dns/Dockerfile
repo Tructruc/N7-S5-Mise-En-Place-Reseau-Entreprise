@@ -1,13 +1,10 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
 # Install all needed packages
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add \
         iproute2 \
-        iputils-ping \
-        curl \
-        isc-dhcp-client \
         dnsmasq \
-        && apt-get clean
+        && apk cache clean
 
 # The command that is executed when the container start
 # Delete the docker default route
@@ -18,5 +15,5 @@ RUN apt-get update && apt-get install -y \
 CMD sh -c "ip route del default && \ 
             ip route add default via 192.168.100.250 dev eth0 && \
             ip addr flush dev eth0 &&\
-            dhclient eth0 && \
+            udhcpc eth0 -s /udhcpc.script && \
             dnsmasq -k"
