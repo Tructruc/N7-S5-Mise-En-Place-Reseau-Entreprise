@@ -80,11 +80,11 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
             listen 80;
             server_name www.alrismail.om;
             location / {
-                    proxy_pass http://192.168.2.3; # Transférer aux serveurs web
+                    proxy_pass http://192.168.2.3; # Transférer au serveur web
             }
     }
     ```
-  - Gère les requêtes pour `www.alrismail.om` et les transfère aux serveurs web en mode round-robin.
+  - Gère les requêtes pour `www.alrismail.om` et les transfère aux serveur web.
 - **Adresse IP :** `192.168.2.4` (Configuré par nmcli)
 
 ---
