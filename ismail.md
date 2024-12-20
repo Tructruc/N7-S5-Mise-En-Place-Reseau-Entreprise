@@ -1,6 +1,6 @@
 ## **Choix Techniques**
 
-![Carte Réseau Entreprise](ismail/planReseau.png)
+![Carte Réseau Entreprise](ismail/DNetwork.png)
 
 ### **Solution de Virtualisation**
 
