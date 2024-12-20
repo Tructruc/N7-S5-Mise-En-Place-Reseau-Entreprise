@@ -94,7 +94,7 @@ Pour ce projet, j'ai utilisé **VirtualBox** comme solution de virtualisation po
 - **Configuration Réseau :**
 
   - La VM Routeur connecte tous les sous-réseaux en utilisant le **Réseau Interne** de VirtualBox pour `192.168.1.x` (réseau privé) et `192.168.2.x` (DMZ).
-  - Un adaptateur NAT ou Ponté séparé connecte la VM Routeur au réseau externe pour l'accès à internet.
+  - Une Interface NAT connecte la VM Routeur au réseau externe pour l'accès à internet.
 
 - **Intégration DHCP :**
 
