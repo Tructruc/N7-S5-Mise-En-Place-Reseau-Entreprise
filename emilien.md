@@ -77,3 +77,21 @@ J'ai ajouté le docker compose de [Edgeshark](https://edgeshark.siemens.io/) qui
 ## Poid de la simulation
 
 Les images de la simulation pèsent en tout environ 500Mo de stockage. Une fois les conteneurs lancés, la simulation ne consomme que 75Mo de RAM. Alpine linux m'a permis d'optimiser ces métriques. Lorsque j'utilisais des images Ubuntu, les images faisait pluseurs gigaoctets et plus de 300Mo de RAM.
+
+## Problèmes rencontrés
+
+### Problème de communication avec le réseau physique
+
+Lorsque j'ai activé le mode macvlan sur le réseau public de mon routeur, Docker me donnait une erreur qui disait que l'interface parente devait avoir le format `eth0.10` sauf que l'interface ethernet de mon ordinateur s'appelle `enp0s3` j'ai donc essayé de la renommer en `eth0` mais cela n'a pas fonctionné. Après des recherches, j'ai découvert qu'en executant les commandes docker avec `sudo` cela fonctionnait alors que mon utilisateur était dans le groupe docker. J'ai donc continué à utiliser `sudo` pour lancer les commandes docker. Après avoir fait de plus amples recherches, j'ai découvert que le problème venait de Docker Desktop. En effet Docker Desktop execute docker dans une machine virtuelle qui elle ne supporte pas le macvlan. Cela marchait avec `sudo` car Docker Desktop ne s'execute que en mode utilisateur. Lorsque l'on execute docker avec `sudo`, il s'execute sur Docker Engine qui lui est installé sur la machine hôte et qui lui supporte le macvlan. Pour résoudre le problème sans devoir utiliser `sudo`, je dois changer de contexte Docker pour passer de `docker-desktop` à `default` avec la commande `docker context use docker-desktop`.
+
+
+### Passage d'images Ubuntu à Alpine
+
+J'ai commencé le projet avec des conteneur basé sur des images Ubuntu car cela était plus simple mais dans l'optique d'avoir une simulation la plus légère possible, j'ai décidé de passer sur des images Alpine qui sont beaucoup plus légères.
+
+Plusieurs problèmes se sont alors présenté notament le fait que certains paquets que j'utilisais sur ubuntu n'existaient pas sur Alpine. Par exemple `dhclient` qui est le client DHCP que j'utilisais sur les conteneurs utilisateurs n'est pas disponible dans les dernières versions d'Alpine. J'ai donc utilisé `udhcpc` qui est installé par défault sur Alpine. J'ai rencontré un problème avec `udhcpc`, une fois qu'il à récupéré les informations du DHCP, il essaye de les écrire dans `/etc/resolve.conf` avec un `mv` sauf que ce fichier est en cours d'utilisation donc on ne peut pas le modifier avec `mv`. J'ai donc modifié le script pour qu'il écrive dans `/etc/reslove.conf` avec des `>` et des `>>`.
+
+
+De même, le serveur DHCP `dhcpd` n'est pas disponible sur Alpine. Je l'ai donc remplacé par `kea` qui est un autre serveur DHCP open source qui est aussi dévellopé par ISC.
+
+Au contraire `caddy` qui est le serveur web que j'utilise est disponible sur Alpine en tant que package ce qui m'évite de l'installer manuellement.
